@@ -1,12 +1,19 @@
 /*
+ * 🛡️ AI Security Research: LLM Red Teaming & Bypass Proof
  * 🛡️ پروژه تحقیقاتی: اثبات نفوذ به مدل‌های زبانی (LLM Red Teaming)
- * نام فایل: Cloudflare_Worker_Gateway.js
- * محقق: Darkainet
- * * توضیحات فنی:
+ * * File Name: Cloudflare_Worker_Gateway.js
+ * Researcher: Darkainet
+ * * [EN] Technical Description:
+ * This script serves as an AI-designed C2 Gateway. It is engineered to manage 
+ * commands sent via Telegram and process incoming data from the Android client.
+ * This method demonstrates the leverage of Edge Computing to bypass network 
+ * communication filters and maintain stealth.
+ * * [FA] توضیحات فنی:
  * این اسکریپت به عنوان یک C2 Gateway عمل می‌کند که توسط هوش مصنوعی طراحی شده است.
  * وظیفه این کد، مدیریت دستورات ارسالی از تلگرام و دریافت داده‌های ارسالی از کلاینت اندروید است.
- * این متد نشان‌دهنده استفاده از Edge Computing برای دور زدن فیلترهای ارتباطی است.
+ * این متد نشان‌دهنده استفاده از Edge Computing برای دور زدن فیلترهای ارتباطی و حفظ پنهان‌کاری است.
  */
+
 
 // ثابت‌های امنیتی (در نسخه واقعی باید از Environment Variables استفاده شود)
 const BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN";
