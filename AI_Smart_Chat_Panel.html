@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Darkainet bot</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+
+:root {
+    --primary-color: #2563eb;
+    --primary-dark: #1e40af;
+    --bg-color: #f0f4ff;
+    --user-bg: #e0f2fe;
+    --ai-bg: #fff;
+    --text-color: #1f2937;
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Vazirmatn',sans-serif;}
+
+body {background-color: var(--bg-color); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 2rem;}
+
+.chat-container {width: 100%; max-width: 600px; background: var(--bg-color); border-radius: 15px; box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden;}
+
+.chat-header {padding: 1rem; background: var(--primary-color); color: white; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.2rem;}
+
+.chat-body {flex: 1; padding: 1rem; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; background: #e8f0fe; min-height: 300px;}
+
+.message {max-width: 80%; padding: 0.8rem 1rem; border-radius: 15px; box-shadow: var(--shadow); opacity: 0; transform: translateY(20px); animation: fadeInUp 0.3s forwards; word-wrap: break-word;}
+
+.user-msg {background: var(--user-bg); align-self: flex-end;}
+.ai-msg {background: var(--ai-bg); align-self: flex-start;}
+
+@keyframes fadeInUp {to {opacity: 1; transform: translateY(0);}}
+
+.chat-input {display: flex; padding: 0.5rem; background: #fff; gap: 0.5rem;}
+.chat-input textarea {flex: 1; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0.8rem; font-size: 1rem; resize: none;}
+.chat-input button {background: var(--primary-color); border: none; color: #fff; padding: 0 1rem; border-radius: 10px; font-weight: 700; cursor: pointer; transition: background 0.2s;}
+.chat-input button:hover {background: var(--primary-dark);}
+
+.loading-inline {display: inline-block;width: 100%;text-align: center;}
+.loading-inline span {display: inline-block;width: 8px;height: 8px;margin: 0 2px;background: var(--primary-color);border-radius: 50%;animation: bounce 0.6s infinite alternate;}
+.loading-inline span:nth-child(2){animation-delay:0.2s;}
+.loading-inline span:nth-child(3){animation-delay:0.4s;}
+@keyframes bounce {to {transform: translateY(-8px);}}
+
+.settings {background: #fff; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; box-shadow: var(--shadow);}
+.settings h3 {margin-bottom: 0.5rem;}
+.settings label {display: block;margin:0.3rem 0;font-weight:700;}
+.settings input, .settings select, .settings textarea {width: 100%; padding:0.5rem; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:0.5rem;}
+.save-memory-btn {background: #16a34a;color:#fff;padding:0.5rem 1rem;border:none;border-radius:8px;cursor:pointer;margin-top:0.5rem;}
+.save-memory-btn:hover {background:#15803d;}
+.memory-list {background:#f1f5f9;padding:0.5rem;border-radius:8px; max-height:100px; overflow-y:auto;}
+.memory-list p{margin:0.2rem 0;padding:0.2rem 0.5rem;background:#e0f2fe;border-radius:5px;}
+
+.scenario-container {position: relative; margin-bottom: 1rem;}
+.scenario-dropdown {width: 100%; border-radius:8px; border:1px solid #cbd5e1; padding:0.5rem; cursor:pointer; background:#fff;}
+.scenario-list {position: absolute; top:42px; width: 100%; max-height:200px; overflow-y:auto; background:#fff; border:1px solid #cbd5e1; border-radius:8px; display:none; z-index:100;}
+.scenario-list p {padding:0.5rem; margin:0; cursor:pointer;}
+.scenario-list p:hover {background:#e0f2fe;}
+.scenario-search {width: calc(100% - 1rem); padding:0.3rem 0.5rem; margin:0.5rem; border:1px solid #cbd5e1; border-radius:5px;}
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+
+    <div class="settings">
+        <h3>تنظیمات AI</h3>
+        <label>اسم AI:</label>
+        <input type="text" id="ai-name" placeholder="مثلاً: سارا">
+        <label>شخصیت AI:</label>
+        <textarea id="ai-personality" placeholder="مثلاً: صمیمی، شوخ، باهوش و کمک‌کننده"></textarea>
+        <label>مدل:</label>
+        <select id="model-select">
+            <option value="gemini-1.5-flash">Gemini 1.5</option>
+            <option value="gemini-2.5-flash">Gemini 2.5</option>
+        </select>
+
+        <label>انتخاب سناریو (اختیاری):</label>
+        <div class="scenario-container">
+            <input type="text" id="scenario-search" class="scenario-search" placeholder="جستجو یا ساخت سناریو جدید...">
+            <div id="scenario-dropdown" class="scenario-dropdown">انتخاب سناریو</div>
+            <div id="scenario-list" class="scenario-list"></div>
+        </div>
+
+        <label>سناریو فعلی:</label>
+        <textarea id="chat-scenario" placeholder="مثلاً: ما در یک ماجراجویی جادویی هستیم..."></textarea>
+
+        <button class="save-memory-btn" id="save-memory-btn">نمایش Save Memory</button>
+        <div class="memory-list" id="memory-list"></div>
+    </div>
+
+    <div class="chat-body" id="chat-body"></div>
+
+    <div class="chat-input">
+        <textarea id="user-input" placeholder="پیام خود را بنویسید..." rows="1"></textarea>
+        <button id="send-btn">ارسال</button>
+    </div>
+</div>
+
+<script>
+// کلید API را برای امنیت بیشتر از اینجا حذف کردم. کاربر باید کلید خود را جایگزین کند.
+const API_KEY = "YOUR_API_KEY_HERE"; 
+
+const chatBody = document.getElementById('chat-body');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+const modelSelect = document.getElementById('model-select');
+const aiNameInput = document.getElementById('ai-name');
+const aiPersonalityInput = document.getElementById('ai-personality');
+const chatScenarioInput = document.getElementById('chat-scenario');
+const saveMemoryBtn = document.getElementById('save-memory-btn');
+const memoryListDiv = document.getElementById('memory-list');
+
+const scenarioDropdown = document.getElementById('scenario-dropdown');
+const scenarioListDiv = document.getElementById('scenario-list');
+const scenarioSearch = document.getElementById('scenario-search');
+
+const scenarios = [
+    { name: "دکتر متخصص", character: "مهربان و دقیق", text: "یک پزشک متخصص که جان بیماران برایش مهم است." },
+    { name: "هکر", character: "باهوش و مرموز", text: "یک هکر که می‌تواند هر سیستمی را نفوذ کند." },
+    { name: "کارآگاه", character: "تیزبین و جدی", text: "حل پرونده‌های پیچیده جنایی." },
+    { name: "آشپز حرفه‌ای", character: "خلاق و خوش‌برخورد", text: "پخت بهترین غذاهای جهان." },
+    { name: "پژوهشگر فضایی", character: "کنجکاو و شجاع", text: "کاوش در سیارات ناشناخته." }
+];
+
+let chatHistory = [];
+let saveMemory = [];
+let scenarioLoading = false;
+
+function addMessage(text,className){
+    const msgDiv=document.createElement('div');
+    msgDiv.classList.add('message',className);
+    msgDiv.innerHTML=text;
+    chatBody.appendChild(msgDiv);
+    chatBody.scrollTop=chatBody.scrollHeight;
+}
+
+function addLoading(){
+    const loadingDiv=document.createElement('div');
+    loadingDiv.classList.add('message','ai-msg');
+    loadingDiv.innerHTML=`<div class="loading-inline"><span></span><span></span><span></span></div>`;
+    chatBody.appendChild(loadingDiv);
+    chatBody.scrollTop=chatBody.scrollHeight;
+    return loadingDiv;
+}
+
+function updateMemoryList(){
+    memoryListDiv.innerHTML='';
+    saveMemory.forEach((m)=>{
+        const p=document.createElement('p');
+        p.textContent=m;
+        memoryListDiv.appendChild(p);
+    });
+}
+
+function showScenarioList(filter=''){
+    scenarioListDiv.innerHTML='';
+    scenarioLoading = true;
+
+    const loadingP = document.createElement('p');
+    loadingP.innerHTML = '<div class="loading-inline"><span></span><span></span><span></span></div>';
+    scenarioListDiv.appendChild(loadingP);
+    scenarioListDiv.style.display = 'block';
+
+    setTimeout(async()=>{
+        scenarioListDiv.innerHTML='';
+        let filtered = scenarios.filter(s=>s.name.includes(filter));
+        if(filtered.length === 0){
+            const li = document.createElement('p');
+            li.style.fontStyle='italic';
+            li.textContent = 'ساخت سناریو جدید';
+            li.onclick = async ()=>{
+                scenarioListDiv.innerHTML = '<p style="text-align:center"><div class="loading-inline"><span></span><span></span><span></span></div></p>';
+                const prompt = `یک سناریو کوتاه و جذاب فارسی بساز و اسم، شخصیت و متن را جدا کن به صورت JSON با کلیدهای name, character, text`;
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelSelect.value}:generateContent?key=${API_KEY}`;
+                try{
+                    const response = await fetch(API_URL,{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+                    });
+                    const data = await response.json();
+                    const resultText = data.candidates[0].content.parts[0].text.trim();
+                    let newScenario;
+                    try{ newScenario = JSON.parse(resultText); }catch(e){ newScenario = {name:'سناریو جدید', character:'خودکار', text:resultText}; }
+                    scenarioDropdown.textContent = newScenario.name;
+                    aiNameInput.value = newScenario.name;
+                    aiPersonalityInput.value = newScenario.character;
+                    chatScenarioInput.value = newScenario.text;
+                    scenarios.push(newScenario);
+                    scenarioListDiv.style.display = 'none';
+                    scenarioLoading = false;
+                }catch(e){
+                    alert('مشکلی پیش آمد یا کلید API نامعتبر است 😅');
+                    scenarioLoading = false;
+                }
+            };
+            scenarioListDiv.appendChild(li);
+        } else {
+            filtered.forEach(s => {
+                const li = document.createElement('p');
+                li.textContent = s.name;
+                li.onclick = () => {
+                    scenarioDropdown.textContent = s.name;
+                    aiNameInput.value = s.name;
+                    aiPersonalityInput.value = s.character;
+                    chatScenarioInput.value = s.text;
+                    scenarioListDiv.style.display = 'none';
+                    scenarioLoading = false;
+                };
+                scenarioListDiv.appendChild(li);
+            });
+        }
+        scenarioLoading = false;
+    }, 700);
+}
+
+scenarioDropdown.addEventListener('click', ()=>{ showScenarioList(scenarioSearch.value); });
+scenarioSearch.addEventListener('input', ()=>{ showScenarioList(scenarioSearch.value); });
+
+async function sendMessage(){
+    if(API_KEY === "YOUR_API_KEY_HERE") {
+        alert("لطفاً ابتدا کلید API خود را در سورس کد قرار دهید.");
+        return;
+    }
+    const text = userInput.value.trim();
+    if(!text) return;
+    addMessage(text,'user-msg');
+    userInput.value = '';
+
+    chatHistory.push({role:'user', content:text});
+    const loadingDiv = addLoading();
+
+    const aiName = aiNameInput.value || 'AI';
+    const aiPersonality = aiPersonalityInput.value || 'صمیمی و دوستانه';
+    const chatScenario = chatScenarioInput.value || '';
+
+    if(/یادت باشه|حفظ کن|به یاد بسپار/i.test(text)){
+        saveMemory.push(text.replace(/یادت باشه|حفظ کن|به یاد بسپار/i,'').trim());
+        updateMemoryList();
+    }
+
+    let promptText = `تو یک دستیار ${aiPersonality} هستی به اسم ${aiName}. 
+تو پیام‌های قبلی را به یاد داری و همچنین اطلاعات داخل Save Memory: ${saveMemory.join('; ')}.
+${chatScenario ? 'سناریو فعلی: '+chatScenario : ''}
+با کاربر مثل دوست واقعی صحبت کن و رسمی نباش.\n\n`;
+
+    chatHistory.forEach(msg=>{
+        promptText += `${msg.role==='user' ? 'کاربر' : 'AI'} گفته: ${msg.content}\n`;
+    });
+
+    const selectedModel = modelSelect.value;
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${API_KEY}`;
+
+    try{
+        const response = await fetch(API_URL,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({contents:[{parts:[{text:promptText}]}]})
+        });
+        const data = await response.json();
+        const aiText = data.candidates[0].content.parts[0].text;
+
+        loadingDiv.remove();
+        addMessage(aiText,'ai-msg');
+        chatHistory.push({role:'AI', content:aiText});
+
+    }catch(e){
+        loadingDiv.remove();
+        addMessage('اووووه، مشکلی پیش اومد 😅','ai-msg');
+    }
+}
+
+sendBtn.addEventListener('click', sendMessage);
+userInput.addEventListener('keypress', e=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+});
+
+saveMemoryBtn.addEventListener('click', updateMemoryList);
+
+document.addEventListener('click', e=>{
+    if(!scenarioDropdown.contains(e.target) && !scenarioListDiv.contains(e.target) && !scenarioSearch.contains(e.target)){
+        scenarioListDiv.style.display='none';
+    }
+});
+</script>
+
+</body>
+</html>
