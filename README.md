@@ -56,3 +56,4 @@ I focus on ethical exploitation methods and vulnerability research within Large 
 
 ---
 *این مسیر تازه شروع شده است...*
+⚠️ Disclaimer: This project is for research purposes only. Please read the full DISCLAIMER.md before use
