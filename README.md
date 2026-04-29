@@ -8,7 +8,7 @@
 Welcome! This repository documents my technical activities in **AI Red Teaming** and **Network Infrastructure**.
 
 ### 🚀 About This Repository
-I focus on ethical exploitation methods and vulnerability research within Large Language Models (LLMs). My goal is to gain a deeper understanding of cybersecurity as I prepare for a professional career and relocation in the IT sector.
+Here I work on ethical hacking methods and bug detection in language models (LLM). My goal is to gain a deeper understanding of cybersecurity and expose the realities of AI.
 
 ### 📂 Projects & Research
 * **[Prompt Injection Research](./Prompt_Injection_Research.md)**: In-depth analysis of the "Master" method for bypassing security guardrails.
@@ -42,7 +42,7 @@ I focus on ethical exploitation methods and vulnerability research within Large 
 خوش آمدید! این مخزن (Repository) محل ثبت فعالیت‌های فنی من در زمینه‌ی **تست نفوذ هوش مصنوعی** و **زیرساخت‌های شبکه** است.
 
 ### 🚀 درباره این مخزن
-من در اینجا روی متدهای نفوذ اخلاقی و شناسایی باگ‌های مدل‌های زبانی (LLM) کار می‌کنم. هدف من درک عمیق‌تر امنیت سایبری برای آماده‌سازی جهت مهاجرت و فعالیت حرفه‌ای در حوزه IT است.
+من در اینجا روی متدهای نفوذ اخلاقی و شناسایی باگ‌های مدل‌های زبانی (LLM) کار می‌کنم. هدف من درک عمیق‌تر امنیت سایبری و افشای واقعیت های AI است.
 
 ### 📂 پروژه‌ها و تحقیقات
 * **[تحقیق روی Prompt Injection](./Prompt_Injection_Research.md)**: بررسی متد "استاد" برای دور زدن محدودیت‌های امنیتی.
